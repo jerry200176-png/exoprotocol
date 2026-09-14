@@ -362,7 +362,7 @@ def acquire_lock(
             renewed_at = datetime.now().astimezone()
             renewed_expires = renewed_at + timedelta(hours=normalized_duration)
             workspace = existing.get("workspace") if isinstance(existing.get("workspace"), dict) else {}
-            branch = str(workspace.get("branch") or f"codex/{ticket_id}")
+            branch = str(workspace.get("branch") or f"exo/{ticket_id}")
             base_branch = str(workspace.get("base") or base)
             fencing_raw = existing.get("fencing_token", 0)
             try:
@@ -401,7 +401,7 @@ def acquire_lock(
             "lease_expires_at": expires.isoformat(timespec="seconds"),
             "fencing_token": 1,
             "workspace": {
-                "branch": f"codex/{ticket_id}",
+                "branch": f"exo/{ticket_id}",
                 "base": base,
             },
         }

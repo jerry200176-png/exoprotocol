@@ -455,6 +455,8 @@ class TestAutoBranchOnSessionStart:
             text=True,
         ).stdout.strip()
         assert branch == "exo/TICKET-111"
+        lock = tickets_mod.load_lock(repo)
+        assert lock["workspace"]["branch"] == "exo/TICKET-111"
 
     def test_reuses_existing_ticket_branch(self, tmp_path: Path) -> None:
         import subprocess

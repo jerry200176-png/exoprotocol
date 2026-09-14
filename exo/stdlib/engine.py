@@ -660,7 +660,7 @@ class KernelEngine:
 
     def _enforce_lock_branch(self, lock: dict[str, Any], git_controls: dict[str, Any]) -> dict[str, Any]:
         expected_branch = str(
-            ((lock.get("workspace") or {}).get("branch")) or f"codex/{lock.get('ticket_id', 'unknown')}"
+            ((lock.get("workspace") or {}).get("branch")) or f"exo/{lock.get('ticket_id', 'unknown')}"
         )
         base_branch = str(
             ((lock.get("workspace") or {}).get("base")) or git_controls.get("base_branch_fallback", "main")
@@ -841,7 +841,7 @@ class KernelEngine:
         }
         current_branch = self._git_current_branch()
         expected_branch = str(
-            ((lock.get("workspace") or {}).get("branch")) or f"codex/{lock.get('ticket_id', 'unknown')}"
+            ((lock.get("workspace") or {}).get("branch")) or f"exo/{lock.get('ticket_id', 'unknown')}"
         )
         base_branch = str(
             ((lock.get("workspace") or {}).get("base")) or git_controls.get("base_branch_fallback", "main")

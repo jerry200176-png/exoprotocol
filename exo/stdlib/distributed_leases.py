@@ -366,7 +366,7 @@ class GitDistributedLeaseManager:
             "lease_expires_at": str(payload["lease_expires_at"]),
             "fencing_token": int(payload["fencing_token"]),
             "workspace": {
-                "branch": f"codex/{ticket_id}",
+                "branch": f"exo/{ticket_id}",
                 "base": base_branch,
             },
             "distributed": {

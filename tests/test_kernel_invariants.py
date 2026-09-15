@@ -143,6 +143,7 @@ def test_lock_collision_blocks_different_owner_on_same_ticket(tmp_path: Path) ->
     assert first["ticket_id"] == "TICKET-901"
     assert first["owner"] == "agent:a"
     assert int(first["fencing_token"]) == 1
+    assert first["workspace"]["branch"] == "exo/TICKET-901"
 
     with pytest.raises(ExoError) as collision_err:
         tickets_mod.acquire_lock(repo, "TICKET-901", owner="agent:b", role="developer")
@@ -182,6 +183,42 @@ def test_lock_heartbeat_rejects_owner_mismatch(tmp_path: Path) -> None:
     with pytest.raises(ExoError) as owner_err:
         tickets_mod.heartbeat_lock(repo, "TICKET-904", owner="agent:b", duration_hours=2)
     assert owner_err.value.code == "LOCK_OWNER_MISMATCH"
+
+
+def test_engine_lock_branch_fallback_uses_canonical_exo_prefix(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo = _bootstrap_repo(tmp_path, require_lock=False, kernel_deny=False)
+    engine = KernelEngine(repo, actor="agent:test", no_llm=True)
+    monkeypatch.setattr(engine, "_is_git_repo", lambda: False)
+    issues: list[str] = []
+
+    report = engine._audit_lock_branch_policy({"ticket_id": "TICKET-905", "workspace": {}}, issues)
+
+    assert report == {"enabled": True, "git_repo": False}
+
+    monkeypatch.setattr(engine, "_is_git_repo", lambda: True)
+    monkeypatch.setattr(engine, "_git_current_branch", lambda: "exo/TICKET-905")
+    monkeypatch.setattr(engine, "_git_branch_exists", lambda branch: branch in {"exo/TICKET-905", "main"})
+    monkeypatch.setattr(engine, "_git_branch_divergence", lambda *_args: {"ahead": 0, "behind": 0})
+    monkeypatch.setattr(engine, "_git_change_snapshot", lambda _ignore_patterns: {"actions": {}})
+    tickets_mod.save_ticket(
+        repo,
+        {
+            "id": "TICKET-905",
+            "title": "Canonical branch fallback",
+            "status": "todo",
+            "priority": 5,
+            "scope": {"allow": ["**/*"], "deny": []},
+            "budgets": {"max_files_changed": 5, "max_loc_changed": 200},
+            "checks": [],
+            "created_at": "2026-02-10T00:00:00+00:00",
+        },
+    )
+    issues.clear()
+    report = engine._audit_lock_branch_policy({"ticket_id": "TICKET-905", "workspace": {}}, issues)
+
+    assert report is not None
+    assert report["expected_branch"] == "exo/TICKET-905"
+    assert issues == []
 
 
 def test_check_action_denies_memory_index_mutation(tmp_path: Path) -> None:

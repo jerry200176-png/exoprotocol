@@ -70,6 +70,7 @@ def test_distributed_claim_conflict_between_two_clones(tmp_path: Path) -> None:
     assert first["ticket_id"] == "TICKET-700"
     assert first["distributed"]["mode"] == "claim"
     assert int(first["lock"]["fencing_token"]) == 1
+    assert first["lock"]["workspace"]["branch"] == "exo/TICKET-700"
 
     with pytest.raises(ExoError) as collision_err:
         manager_b.claim("TICKET-700", owner="agent:b", role="developer", duration_hours=1, remote="origin")

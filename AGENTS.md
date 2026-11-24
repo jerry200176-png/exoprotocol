@@ -1,3 +1,5 @@
+> **RETIRED.** Retired 2026-10-14 by the Founder; not required in any portfolio repo; see portfolio-ops governance/RULEBOOK.md §9. Do not follow the ExoProtocol session-lifecycle instructions below (no session-start, tickets, locks or `exo push`). The code is kept intact for reference.
+
 # AGENTS.md
 
 This repository uses Exo's vendor-agnostic protocol as the primary agent contract.
